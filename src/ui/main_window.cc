@@ -40,17 +40,24 @@ MainWindow::MainWindow(const OptionManager& options)
       thread_control_widget_(new ThreadControlWidget(this)),
       window_closed_(false) {
   resize(1024, 600);
+  //设置Window的名字什么的
   UpdateWindowTitle();
-
+  //设置所有子窗口(特征提取啊、匹配啊什么的)的属性和按钮操作  QWidget类是所有用户界面对象的基类。
   CreateWidgets();
+  //设置菜单中的按钮（只是窗口的操作）的功能
   CreateActions();
+  //设置 QMenu 界面的菜单
   CreateMenus();
+  //设置工具栏 QToolBar
   CreateToolbar();
+  //设置状态 QLabel
   CreateStatusbar();
+  //新建重建的控制器
   CreateControllers();
 
   ShowLog();
 
+  //TODO 设置选项信息？
   options_.AddAllOptions();
 }
 
@@ -101,12 +108,17 @@ void MainWindow::CreateWidgets() {
   model_viewer_widget_ = new ModelViewerWidget(this, &options_);
   setCentralWidget(model_viewer_widget_);
 
+  //设置new open select等创建文件夹和数据库的操作,路径保存到options_中
   project_widget_ = new ProjectWidget(this, &options_);
   project_widget_->SetDatabasePath(*options_.database_path);
   project_widget_->SetImagePath(*options_.image_path);
 
+  //创建特征提取的函数,在这里初始化的时候就已经设置好了按钮的功能,提取按钮直接链接这个类指针的Extract函数。
   feature_extraction_widget_ = new FeatureExtractionWidget(this, &options_);
+
+  //创建特征匹配的函数，在内层调用设置按钮的功能
   feature_matching_widget_ = new FeatureMatchingWidget(this, &options_);
+
   database_management_widget_ = new DatabaseManagementWidget(this, &options_);
   automatic_reconstruction_widget_ = new AutomaticReconstructionWidget(this);
   reconstruction_options_widget_ =
@@ -234,13 +246,18 @@ void MainWindow::CreateActions() {
   action_reconstruction_start_ =
       new QAction(QIcon(":/media/reconstruction-start.png"),
                   tr("Start reconstruction"), this);
+
+  //开始重建
   connect(action_reconstruction_start_, &QAction::triggered, this,
           &MainWindow::ReconstructionStart);
+
   blocking_actions_.push_back(action_reconstruction_start_);
 
   action_reconstruction_step_ =
       new QAction(QIcon(":/media/reconstruction-step.png"),
                   tr("Reconstruct next image"), this);
+
+  //重建按钮链接的函数
   connect(action_reconstruction_step_, &QAction::triggered, this,
           &MainWindow::ReconstructionStep);
   blocking_actions_.push_back(action_reconstruction_step_);
@@ -361,6 +378,7 @@ void MainWindow::CreateActions() {
   // Misc actions
   //////////////////////////////////////////////////////////////////////////////
 
+  //Render()应该是在这调用的，可是是怎么调的呢？
   action_render_ = new QAction(tr("Render"), this);
   connect(action_render_, &QAction::triggered, this, &MainWindow::Render,
           Qt::BlockingQueuedConnection);
@@ -1071,6 +1089,7 @@ void MainWindow::Render() {
 }
 
 void MainWindow::RenderNow() {
+  std::cout<<"<=== RenderNow ===>"<<std::endl;
   reconstruction_manager_widget_->Update();
   RenderSelectedReconstruction();
 }
@@ -1080,7 +1099,7 @@ void MainWindow::RenderSelectedReconstruction() {
     RenderClear();
     return;
   }
-
+  //为显示model设置重建器，然后更新信息
   const size_t reconstruction_idx = SelectedReconstructionIdx();
   model_viewer_widget_->reconstruction =
       &reconstruction_manager_.Get(reconstruction_idx);
@@ -1305,6 +1324,7 @@ void MainWindow::DisableBlockingActions() {
 
 void MainWindow::UpdateWindowTitle() {
   if (*options_.project_path == "") {
+      //设置窗口的主标题
     setWindowTitle(QString::fromStdString("COLMAP"));
   } else {
     std::string project_title = *options_.project_path;

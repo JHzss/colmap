@@ -334,6 +334,7 @@ class Reconstruction {
   std::unordered_map<image_pair_t, ImagePairStat> image_pair_stats_;
 
   // { image_id, ... } where `images_.at(image_id).registered == true`.
+  // reg_image_ids_.size()=0 说明地图中还图像，也就是还没有初始化
   std::vector<image_t> reg_image_ids_;
 
   // Total number of added 3D points, used to generate unique identifiers.

@@ -44,6 +44,7 @@
 #include "util/logging.h"
 #include "util/math.h"
 #include "util/types.h"
+#include "feature/types.h"
 
 namespace colmap {
 
@@ -147,6 +148,8 @@ class Image {
   inline const std::vector<class Point2D>& Points2D() const;
   void SetPoints2D(const std::vector<Eigen::Vector2d>& points);
   void SetPoints2D(const std::vector<class Point2D>& points);
+
+  void SetPoints2DDescriptor(const FeatureDescriptors & descriptors);
 
   // Set the point as triangulated, i.e. it is part of a 3D point track.
   void SetPoint3DForPoint2D(const point2D_t point2D_idx,

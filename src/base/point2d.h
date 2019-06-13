@@ -36,6 +36,7 @@
 
 #include "util/alignment.h"
 #include "util/types.h"
+#include "feature/types.h"
 
 namespace colmap {
 
@@ -54,6 +55,9 @@ class Point2D {
   inline double Y() const;
   inline void SetXY(const Eigen::Vector2d& xy);
 
+  inline FeatureDescriptor DESCRIPTOR() const ;
+  inline void SetDescriptor(const FeatureDescriptor& featureDescriptor);
+
   // The identifier of the observed 3D point. If the image point does not
   // observe a 3D point, the identifier is `kInvalidPoint3Did`.
   inline point3D_t Point3DId() const;
@@ -67,6 +71,8 @@ class Point2D {
   // The identifier of the 3D point. If the 2D point is not part of a 3D point
   // track the identifier is `kInvalidPoint3DId` and `HasPoint3D() = false`.
   point3D_t point3D_id_;
+
+  FeatureDescriptor featureDescriptor_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -82,6 +88,17 @@ double Point2D::X() const { return xy_.x(); }
 double Point2D::Y() const { return xy_.y(); }
 
 void Point2D::SetXY(const Eigen::Vector2d& xy) { xy_ = xy; }
+
+FeatureDescriptor Point2D::DESCRIPTOR() const
+{
+  return featureDescriptor_;
+}
+
+void Point2D::SetDescriptor(const colmap::FeatureDescriptor &featureDescriptor)
+{
+  featureDescriptor_ = featureDescriptor;
+}
+
 
 point3D_t Point2D::Point3DId() const { return point3D_id_; }
 

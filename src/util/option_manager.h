@@ -149,6 +149,8 @@ class OptionManager {
   template <typename T>
   void RegisterOption(const std::string& name, const T* option);
 
+  //program options是一系列pair<name,value>组成的选项列表,它允许程序通过命令行或配置文件来读取这些参数选项.
+  //options_description(选项描述器)	描述当前的程序定义了哪些选项
   std::shared_ptr<boost::program_options::options_description> desc_;
 
   std::vector<std::pair<std::string, const bool*>> options_bool_;

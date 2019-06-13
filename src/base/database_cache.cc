@@ -151,6 +151,12 @@ void DatabaseCache::Load(const Database& database, const size_t min_num_matches,
         const std::vector<Eigen::Vector2d> points =
             FeatureKeypointsToPointsVector(keypoints);
         images_[image.ImageId()].SetPoints2D(points);
+
+        // 添加描述子的读取
+        const FeatureDescriptors descriptors =
+            database.ReadDescriptors(image.ImageId());
+        images_[image.ImageId()].SetPoints2DDescriptor(descriptors);
+
       }
     }
 

@@ -113,6 +113,7 @@ SiftFeatureExtractor::SiftFeatureExtractor(
   extractor_queue_.reset(new JobQueue<internal::ImageData>(kQueueSize));
   writer_queue_.reset(new JobQueue<internal::ImageData>(kQueueSize));
 
+  // unique ptr，所以要.get()
   if (sift_options_.max_image_size > 0) {
     for (int i = 0; i < num_threads; ++i) {
       resizers_.emplace_back(new internal::ImageResizerThread(
@@ -159,14 +160,16 @@ SiftFeatureExtractor::SiftFeatureExtractor(
 void SiftFeatureExtractor::Run() {
   PrintHeading1("Feature extraction");
 
+  //控制图像的大小,如果图像的尺寸太大需要resize
   for (auto& resizer : resizers_) {
     resizer->Start();
   }
-
+  //提取特征
   for (auto& extractor : extractors_) {
     extractor->Start();
   }
 
+  //保存到数据库中
   writer_->Start();
 
   for (auto& extractor : extractors_) {
@@ -369,6 +372,7 @@ void SiftFeatureExtractorThread::Run() {
     if (input_job.IsValid()) {
       auto image_data = input_job.Data();
 
+      //如果读取成功，开始提取特征点，根据选项选择不同的提取方式
       if (image_data.status == ImageReader::Status::SUCCESS) {
         bool success = false;
         if (sift_options_.estimate_affine_shape ||
@@ -385,6 +389,8 @@ void SiftFeatureExtractorThread::Run() {
                                            &image_data.keypoints,
                                            &image_data.descriptors);
         }
+
+        //如果提取成功，把所有特征点的尺度恢复一下，因为之前图像可能resize了
         if (success) {
           ScaleKeypoints(image_data.bitmap, image_data.camera,
                          &image_data.keypoints);
@@ -400,7 +406,7 @@ void SiftFeatureExtractorThread::Run() {
           image_data.status = ImageReader::Status::FAILURE;
         }
       }
-
+      //删除图像，减少内存消耗
       image_data.bitmap.Deallocate();
 
       output_queue_->Push(image_data);
@@ -490,6 +496,7 @@ void FeatureWriterThread::Run() {
 
       DatabaseTransaction database_transaction(database_);
 
+      //！ 保存Image的数据类型的各项参数，包括 id  cameraid name q_prior t_prior
       if (image_data.image.ImageId() == kInvalidImageId) {
         image_data.image.SetImageId(database_->WriteImage(image_data.image));
       }

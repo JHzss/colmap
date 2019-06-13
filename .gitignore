@@ -41,3 +41,5 @@ doc/_build
 *.exe
 *.out
 *.app
+
+cmake-build-debug/

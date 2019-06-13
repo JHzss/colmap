@@ -82,6 +82,16 @@ void Image::SetPoints2D(const std::vector<class Point2D>& points) {
   num_correspondences_have_point3D_.resize(points.size(), 0);
 }
 
+//todo
+void Image::SetPoints2DDescriptor(const colmap::FeatureDescriptors &descriptors)
+{
+  for (int i = 0; i < descriptors.rows(); ++i)
+  {
+    FeatureDescriptor descriptor = descriptors.row(i);
+    points2D_[i].SetDescriptor(descriptor);
+  }
+}
+
 void Image::SetPoint3DForPoint2D(const point2D_t point2D_idx,
                                  const point3D_t point3D_id) {
   CHECK_NE(point3D_id, kInvalidPoint3DId);

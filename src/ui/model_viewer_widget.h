@@ -51,6 +51,8 @@
 
 namespace colmap {
 
+
+//! 最后重建后的显示类
 class ModelViewerWidget : public QOpenGLWidget,
                           protected QOpenGLFunctions_3_2_Core {
  public:
@@ -122,6 +124,7 @@ class ModelViewerWidget : public QOpenGLWidget,
   void SetBackgroundColor(const float r, const float g, const float b);
 
   // Copy of current scene data that is displayed
+  //! 会从重建的manager中选择重建类的指针
   Reconstruction* reconstruction = nullptr;
   EIGEN_STL_UMAP(camera_t, Camera) cameras;
   EIGEN_STL_UMAP(image_t, Image) images;

@@ -633,12 +633,25 @@ image_t Database::WriteImage(const Image& image,
   SQLITE3_CALL(sqlite3_bind_int64(sql_stmt_add_image_, 3, image.CameraId()));
 
   // NaNs are automatically converted to NULLs in SQLite.
+  //! image_qver_prior 这里还没有值 都是 nan
+//  double q_w = image.QvecPrior(0);
+//  double q_x = image.QvecPrior(1);
+//  double q_y = image.QvecPrior(2);
+//  double q_z = image.QvecPrior(3);
+
   SQLITE3_CALL(sqlite3_bind_double(sql_stmt_add_image_, 4, image.QvecPrior(0)));
   SQLITE3_CALL(sqlite3_bind_double(sql_stmt_add_image_, 5, image.QvecPrior(1)));
   SQLITE3_CALL(sqlite3_bind_double(sql_stmt_add_image_, 6, image.QvecPrior(2)));
   SQLITE3_CALL(sqlite3_bind_double(sql_stmt_add_image_, 7, image.QvecPrior(3)));
 
   // NaNs are automatically converted to NULLs in SQLite.
+  //! image_tvec_prior  这里还没有值 都是 nan
+
+//  double t_x = image.TvecPrior(0);
+//  double t_y = image.TvecPrior(1);
+//  double t_z = image.TvecPrior(2);
+//  std::cout<<"t: "<<t_x<<" "<<t_y<<" "<<t_z<<std::endl;
+
   SQLITE3_CALL(sqlite3_bind_double(sql_stmt_add_image_, 8, image.TvecPrior(0)));
   SQLITE3_CALL(sqlite3_bind_double(sql_stmt_add_image_, 9, image.TvecPrior(1)));
   SQLITE3_CALL(
@@ -652,6 +665,8 @@ image_t Database::WriteImage(const Image& image,
 
 void Database::WriteKeypoints(const image_t image_id,
                               const FeatureKeypoints& keypoints) const {
+
+  //! 把所有的keypoints 放到Eigen Matrix里，一行一个特征，每一行包括 x y a11 a12 a21 a22
   const FeatureKeypointsBlob blob = FeatureKeypointsToBlob(keypoints);
 
   SQLITE3_CALL(sqlite3_bind_int64(sql_stmt_write_keypoints_, 1, image_id));

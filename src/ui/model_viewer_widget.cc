@@ -219,6 +219,7 @@ ModelViewerWidget::ModelViewerWidget(QWidget* parent, OptionManager* options)
   setFormat(format);
   QSurfaceFormat::setDefaultFormat(format);
 
+  //初始化 点和图像画图的map信息
   SetPointColormap(new PointColormapPhotometric());
   SetImageColormap(new ImageColormapUniform());
 
@@ -236,6 +237,7 @@ void ModelViewerWidget::initializeGL() {
   SetupView();
 }
 
+//重建后画图的界面
 void ModelViewerWidget::paintGL() {
   glClearColor(background_color_[0], background_color_[1], background_color_[2],
                1.0f);
@@ -260,8 +262,8 @@ void ModelViewerWidget::paintGL() {
   }
 
   // Points
-  point_painter_.Render(pmv_matrix, point_size_);
-  point_connection_painter_.Render(pmv_matrix, width(), height(), 1);
+  point_painter_.Render(pmv_matrix, 2);
+  point_connection_painter_.Render(pmv_matrix, width(), height(), 2);
 
   // Images
   image_line_painter_.Render(pmv_matrix, width(), height(), 1);
@@ -687,6 +689,8 @@ void ModelViewerWidget::Upload() {
 
   ComposeProjectionMatrix();
 
+  // 上传所有的显示信息
+  //对于点来说，不仅更新信息，对点的显示还是有一个筛选的
   UploadPointData();
   UploadImageData();
   UploadMovieGrabberData();

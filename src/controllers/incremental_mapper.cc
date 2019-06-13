@@ -33,6 +33,8 @@
 
 #include "util/misc.h"
 
+#include <fstream>
+
 namespace colmap {
 namespace {
 
@@ -310,6 +312,7 @@ void IncrementalMapperController::Run() {
   }
 
   IncrementalMapper::Options init_mapper_options = options_->Mapper();
+  //开始重建
   Reconstruct(init_mapper_options);
 
   const size_t kNumInitRelaxations = 2;
@@ -353,6 +356,9 @@ bool IncrementalMapperController::LoadDatabase() {
   Timer timer;
   timer.Start();
   const size_t min_num_matches = static_cast<size_t>(options_->min_num_matches);
+
+
+  //从database 中拿到有用的信息
   database_cache_.Load(database, min_num_matches, options_->ignore_watermarks,
                        image_names);
   std::cout << std::endl;
@@ -378,6 +384,7 @@ void IncrementalMapperController::Reconstruct(
   // Main loop
   //////////////////////////////////////////////////////////////////////////////
 
+  // 从之前的步骤(disk)中获取重建所需的信息
   IncrementalMapper mapper(&database_cache_);
 
   // Is there a sub-model before we start the reconstruction? I.e. the user
@@ -404,6 +411,7 @@ void IncrementalMapperController::Reconstruct(
     Reconstruction& reconstruction =
         reconstruction_manager_->Get(reconstruction_idx);
 
+    //参数设置 reconstruction中的内容可以用来存储信息
     mapper.BeginReconstruction(&reconstruction);
 
     ////////////////////////////////////////////////////////////////////////////
@@ -415,10 +423,13 @@ void IncrementalMapperController::Reconstruct(
       image_t image_id2 = static_cast<image_t>(options_->init_image_id2);
 
       // Try to find good initial pair.
-      if (options_->init_image_id1 == -1 || options_->init_image_id2 == -1) {
-        const bool find_init_success = mapper.FindInitialImagePair(
-            init_mapper_options, &image_id1, &image_id2);
-        if (!find_init_success) {
+      if (options_->init_image_id1 == -1 || options_->init_image_id2 == -1)
+      {
+        // 选择两帧进行初始化
+        const bool find_init_success = mapper.FindInitialImagePair(init_mapper_options, &image_id1, &image_id2);
+
+        if (!find_init_success)
+        {
           std::cout << "  => No good initial image pair found." << std::endl;
           mapper.EndReconstruction(kDiscardReconstruction);
           reconstruction_manager_->Delete(reconstruction_idx);
@@ -439,9 +450,12 @@ void IncrementalMapperController::Reconstruct(
 
       PrintHeading1(StringPrintf("Initializing with image pair #%d and #%d",
                                  image_id1, image_id2));
-      const bool reg_init_success = mapper.RegisterInitialImagePair(
-          init_mapper_options, image_id1, image_id2);
-      if (!reg_init_success) {
+
+      // 开始初始化
+      const bool reg_init_success = mapper.RegisterInitialImagePair(init_mapper_options, image_id1, image_id2);
+
+      if (!reg_init_success)
+      {
         std::cout << "  => Initialization failed - possible solutions:"
                   << std::endl
                   << "     - try to relax the initialization constraints"

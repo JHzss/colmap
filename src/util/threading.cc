@@ -269,7 +269,7 @@ int ThreadPool::GetThreadIndex() {
 int GetEffectiveNumThreads(const int num_threads) {
   int num_effective_threads = num_threads;
   if (num_threads <= 0) {
-    num_effective_threads = std::thread::hardware_concurrency();
+    num_effective_threads = std::thread::hardware_concurrency(); //通过这个函数，我们可以获取应用程序可以真正并发执行的线程数量
   }
 
   if (num_effective_threads <= 0) {

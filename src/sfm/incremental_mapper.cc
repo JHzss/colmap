@@ -107,7 +107,10 @@ IncrementalMapper::IncrementalMapper(const DatabaseCache* database_cache)
 void IncrementalMapper::BeginReconstruction(Reconstruction* reconstruction) {
   CHECK(reconstruction_ == nullptr);
   reconstruction_ = reconstruction;
+
+  //加载之前的Image，得到camera 、 Image、 匹配关系
   reconstruction_->Load(*database_cache_);
+
   reconstruction_->SetUp(&database_cache_->CorrespondenceGraph());
   triangulator_.reset(new IncrementalTriangulator(
       &database_cache_->CorrespondenceGraph(), reconstruction));

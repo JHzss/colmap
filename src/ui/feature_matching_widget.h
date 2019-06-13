@@ -48,7 +48,7 @@ class FeatureMatchingWidget : public QWidget {
   void showEvent(QShowEvent* event);
   void hideEvent(QHideEvent* event);
 
-  QWidget* parent_;
+  QWidget* parent_; //记录窗口之间的归属关系
   QTabWidget* tab_widget_;
 };
 

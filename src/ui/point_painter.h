@@ -37,6 +37,7 @@
 
 namespace colmap {
 
+// 画地图点的类
 class PointPainter {
  public:
   PointPainter();

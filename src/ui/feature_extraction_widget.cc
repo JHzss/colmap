@@ -148,25 +148,36 @@ FeatureExtractionWidget::FeatureExtractionWidget(QWidget* parent,
   setWindowFlags(Qt::Window);
   setWindowTitle("Feature extraction");
 
+  //格栅布局
   QGridLayout* grid = new QGridLayout(this);
 
+  //选择相机模型
   grid->addWidget(CreateCameraModelBox(), 0, 0);
 
+  //添加标签
   tab_widget_ = new QTabWidget(this);
-
+  //滚动条
   QScrollArea* extraction_widget = new QScrollArea(this);
   extraction_widget->setAlignment(Qt::AlignHCenter);
+
+  //在extraction_widget选项中设置提取的参数, 把SIFTExtractionWidget的指针给到extraction_widget，然后会在Extract中调用
   extraction_widget->setWidget(new SIFTExtractionWidget(this, options));
   tab_widget_->addTab(extraction_widget, tr("Extract"));
 
+  //滚动条
   QScrollArea* import_widget = new QScrollArea(this);
   import_widget->setAlignment(Qt::AlignHCenter);
+
+  //import_widget 从文件中读取
   import_widget->setWidget(new ImportFeaturesWidget(this, options));
   tab_widget_->addTab(import_widget, tr("Import"));
 
   grid->addWidget(tab_widget_);
 
+  //设置按钮
   QPushButton* extract_button = new QPushButton(tr("Extract"), this);
+
+  //链接按钮，提取特征的按钮，链接了特征提取的函数
   connect(extract_button, &QPushButton::released, this,
           &FeatureExtractionWidget::Extract);
   grid->addWidget(extract_button, grid->rowCount(), 0);

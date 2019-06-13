@@ -100,11 +100,12 @@ FeatureMatchingTab::FeatureMatchingTab(QWidget* parent, OptionManager* options)
       thread_control_widget_(new ThreadControlWidget(this)) {}
 
 void FeatureMatchingTab::CreateGeneralOptions() {
-  options_widget_->AddSpacer();
+  options_widget_->AddSpacer(); //添加空行
   options_widget_->AddSpacer();
   options_widget_->AddSection("General Options");
   options_widget_->AddSpacer();
 
+  //添加不同类型的数据
   options_widget_->AddOptionInt(&options_->sift_matching->num_threads,
                                 "num_threads", -1);
   options_widget_->AddOptionBool(&options_->sift_matching->use_gpu, "use_gpu");
@@ -151,15 +152,19 @@ ExhaustiveMatchingTab::ExhaustiveMatchingTab(QWidget* parent,
   options_widget_->AddOptionInt(&options_->exhaustive_matching->block_size,
                                 "block_size", 2);
 
+  //设置交互界面 添加了按钮的链接函数
   CreateGeneralOptions();
 }
 
 void ExhaustiveMatchingTab::Run() {
   options_widget_->WriteOptions();
 
+  //新建一个线程
   Thread* matcher = new ExhaustiveFeatureMatcher(*options_->exhaustive_matching,
                                                  *options_->sift_matching,
                                                  *options_->database_path);
+
+  //开始run
   thread_control_widget_->StartThread("Matching...", true, matcher);
 }
 
@@ -342,6 +347,7 @@ FeatureMatchingWidget::FeatureMatchingWidget(QWidget* parent,
 
   QGridLayout* grid = new QGridLayout(this);
 
+  //在每个匹配的子类中， 类初始化的时候都生成了按钮的链接激发函数
   tab_widget_ = new QTabWidget(this);
   tab_widget_->addTab(new ExhaustiveMatchingTab(this, options),
                       tr("Exhaustive"));

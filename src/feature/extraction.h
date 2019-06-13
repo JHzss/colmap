@@ -61,13 +61,13 @@ class SiftFeatureExtractor : public Thread {
   Database database_;
   ImageReader image_reader_;
 
-  std::vector<std::unique_ptr<Thread>> resizers_;
-  std::vector<std::unique_ptr<Thread>> extractors_;
-  std::unique_ptr<Thread> writer_;
+  std::vector<std::unique_ptr<Thread>> resizers_;   // 图像resize线程,线程数取决于真正可以并发运行的线程的数量,入股哦图像大小超过设置的最大的大小会被resize
+  std::vector<std::unique_ptr<Thread>> extractors_; // 提取线程
+  std::unique_ptr<Thread> writer_;                  // 特征写线程，保存所有的特征
 
-  std::unique_ptr<JobQueue<internal::ImageData>> resizer_queue_;
-  std::unique_ptr<JobQueue<internal::ImageData>> extractor_queue_;
-  std::unique_ptr<JobQueue<internal::ImageData>> writer_queue_;
+  std::unique_ptr<JobQueue<internal::ImageData>> resizer_queue_; //resize线程 的输入图像
+  std::unique_ptr<JobQueue<internal::ImageData>> extractor_queue_; //resize线程 的输出图像, 提取线程的输入图像
+  std::unique_ptr<JobQueue<internal::ImageData>> writer_queue_;  // 提取线程的输出图像
 };
 
 // Import features from text files. Each image must have a corresponding text
@@ -102,6 +102,7 @@ struct ImageData {
   FeatureDescriptors descriptors;
 };
 
+//图像resize功能
 class ImageResizerThread : public Thread {
  public:
   ImageResizerThread(const int max_image_size, JobQueue<ImageData>* input_queue,
@@ -140,12 +141,14 @@ class FeatureWriterThread : public Thread {
   FeatureWriterThread(const size_t num_images, Database* database,
                       JobQueue<ImageData>* input_queue);
 
+
+  //! 数据保存接口
  private:
   void Run();
 
   const size_t num_images_;
-  Database* database_;
-  JobQueue<ImageData>* input_queue_;
+  Database* database_; // 和特征提取的DB是相同的DB
+  JobQueue<ImageData>* input_queue_; //是特征提取线程的输出
 };
 
 }  // namespace internal

@@ -364,7 +364,7 @@ class SiftFeatureMatcher {
   JobQueue<internal::FeatureMatcherData> matcher_queue_;
   JobQueue<internal::FeatureMatcherData> verifier_queue_;
   JobQueue<internal::FeatureMatcherData> guided_matcher_queue_;
-  JobQueue<internal::FeatureMatcherData> output_queue_;
+  JobQueue<internal::FeatureMatcherData> output_queue_;  // 两个图像之间的所有的匹配关系
 };
 
 // Exhaustively match images by processing each block in the exhaustive match
@@ -401,9 +401,9 @@ class ExhaustiveFeatureMatcher : public Thread {
 
   const ExhaustiveMatchingOptions options_;
   const SiftMatchingOptions match_options_;
-  Database database_;
-  FeatureMatcherCache cache_;
-  SiftFeatureMatcher matcher_;
+  Database database_;             // 存放匹配关系的数据库
+  FeatureMatcherCache cache_;     // 特征匹配缓存器
+  SiftFeatureMatcher matcher_;    //! todo 特征匹配器, 每一种里都有，储存了图像帧之间的匹配信息
 };
 
 // Sequentially match images within neighborhood:

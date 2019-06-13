@@ -827,6 +827,7 @@ void Reconstruction::WriteText(const std::string& path) const {
   WritePoints3DText(JoinPaths(path, "points3D.txt"));
 }
 
+//todo here
 void Reconstruction::WriteBinary(const std::string& path) const {
   WriteCamerasBinary(JoinPaths(path, "cameras.bin"));
   WriteImagesBinary(JoinPaths(path, "images.bin"));
@@ -1664,18 +1665,30 @@ void Reconstruction::ReadImagesBinary(const std::string& path) {
     points2D.reserve(num_points2D);
     std::vector<point3D_t> point3D_ids;
     point3D_ids.reserve(num_points2D);
+    std::vector<FeatureDescriptor> FeatureDescriptors;
+
     for (size_t j = 0; j < num_points2D; ++j) {
       const double x = ReadBinaryLittleEndian<double>(&file);
       const double y = ReadBinaryLittleEndian<double>(&file);
       points2D.emplace_back(x, y);
       point3D_ids.push_back(ReadBinaryLittleEndian<point3D_t>(&file));
+
+      FeatureDescriptor descriptor;
+      int cols = ReadBinaryLittleEndian<double>(&file);
+      for (int col = 0; col < cols; ++col)
+      {
+        descriptor(0,col) = ReadBinaryLittleEndian<double>(&file);
+      }
+      FeatureDescriptors.emplace_back(descriptor);
     }
 
     image.SetUp(Camera(image.CameraId()));
     image.SetPoints2D(points2D);
 
-    for (point2D_t point2D_idx = 0; point2D_idx < image.NumPoints2D();
-         ++point2D_idx) {
+    for (point2D_t point2D_idx = 0; point2D_idx < image.NumPoints2D();++point2D_idx)
+    {
+      image.Point2D(point2D_idx).SetDescriptor(FeatureDescriptors[point2D_idx]);
+
       if (point3D_ids[point2D_idx] != kInvalidPoint3DId) {
         image.SetPoint3DForPoint2D(point2D_idx, point3D_ids[point2D_idx]);
       }
@@ -1859,7 +1872,7 @@ void Reconstruction::WriteCamerasBinary(const std::string& path) const {
 }
 
 void Reconstruction::WriteImagesBinary(const std::string& path) const {
-  std::ofstream file(path, std::ios::trunc | std::ios::binary);
+  std::ofstream file(path, std::ios::trunc | std::ios::binary); // 将先前的文件内容移除
   CHECK(file.is_open()) << path;
 
   WriteBinaryLittleEndian<uint64_t>(&file, reg_image_ids_.size());
@@ -1888,10 +1901,17 @@ void Reconstruction::WriteImagesBinary(const std::string& path) const {
     file.write(name.c_str(), name.size());
 
     WriteBinaryLittleEndian<uint64_t>(&file, image.second.NumPoints2D());
-    for (const Point2D& point2D : image.second.Points2D()) {
+    for (const Point2D& point2D : image.second.Points2D())
+    {
       WriteBinaryLittleEndian<double>(&file, point2D.X());
       WriteBinaryLittleEndian<double>(&file, point2D.Y());
       WriteBinaryLittleEndian<point3D_t>(&file, point2D.Point3DId());
+
+      WriteBinaryLittleEndian<int>(&file, point2D.DESCRIPTOR().cols());
+      for (int col = 0; col < point2D.DESCRIPTOR().cols(); ++col) {
+        uint8_t des = point2D.DESCRIPTOR()(0,col);
+        WriteBinaryLittleEndian<uint8_t>(&file,des);
+      }
     }
   }
 }

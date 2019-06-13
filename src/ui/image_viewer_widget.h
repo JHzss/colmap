@@ -104,6 +104,7 @@ class FeatureImageViewerWidget : public ImageViewerWidget {
   const std::string switch_text_;
 };
 
+//双击图像显示详细的信息
 class DatabaseImageViewerWidget : public FeatureImageViewerWidget {
  public:
   DatabaseImageViewerWidget(QWidget* parent,

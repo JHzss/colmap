@@ -141,6 +141,7 @@ class CorrespondenceGraph {
     point2D_t num_correspondences = 0;
 
     // Correspondences to other images per image point.
+    //该幅图像中的特征点与其他图像之间的点的匹配信息 corrs的大小是图像特征点的数量
     std::vector<std::vector<Correspondence>> corrs;
   };
 

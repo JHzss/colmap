@@ -42,6 +42,7 @@ namespace colmap {
 
 class ModelViewerWidget;
 
+// 双击地图点后会显示点的详细信息
 class PointViewerWidget : public QWidget {
  public:
   PointViewerWidget(QWidget* parent, ModelViewerWidget* model_viewer_widget,
